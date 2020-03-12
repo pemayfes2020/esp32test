@@ -24,7 +24,8 @@ void loop() {
 
   cnt++;
   if (SerialBT.available()) {
-      Serial.println(SerialBT.read());
+        char buf = SerialBT.read();
+        Serial.println({buf});
 //      SerialBT.println("Hello");
   }
   if (SerialBT.available()) {
