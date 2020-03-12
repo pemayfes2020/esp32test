@@ -7,7 +7,15 @@
 //#define SERIAL_PORT "/dev/cu.esp-ESP32SPP"
 #define SERIAL_PORT "/dev/rfcomm0"
 
-auto main() -> int {
+void wait10ms()
+{
+    auto start = std::chrono::system_clock::now();
+    while((std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start)).count() < 10){
+    }
+}
+
+auto main() -> int
+{
     boost::asio::io_service io;
 
     // ポートは /dev/ttyACM0
@@ -17,31 +25,25 @@ auto main() -> int {
     serial.set_option(boost::asio::serial_port_base::baud_rate(115200));
 
     // テキトウに1秒待つ
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 
     // "ping" を送信
     // boost::asio::write(serial, boost::asio::buffer("11"));
 
-    for (int i = 0; i < 2;i++){
-        // serial から response_buf に '\n' まで読み込む
+    char buf[32];
 
-        boost::asio::write(serial, boost::asio::buffer("a"));
+    while(true) {
+        for(int i=0; i<3; ++i){
+            boost::asio::write(serial, boost::asio::buffer("h"));
+            wait10ms();
+        }
 
-
-
-        boost::asio::streambuf response_buf;
-        boost::asio::read_until(serial, response_buf, '0');
-
-        // boost::asio::write(serial, response_buf);
-
-
-        //**************************************************//
-
-        // boost::asio::SyncReadStream *s;
-
-
-        // 表示して終わり
-        const std::string result = boost::asio::buffer_cast<const char*>(response_buf.data());
-        std::cout << result;
+        for(int i=0; i<3; ++i) {
+            boost::asio::write(serial, boost::asio::buffer("l"));
+            wait10ms();
+        }
     }
+
+
+    return 0;
 }
