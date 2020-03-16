@@ -23,7 +23,7 @@ file(GLOB MAIN_SOURCES main.cpp src/*.cpp)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(test ${MAIN_SOURCES})
+add_executable(test "${MAIN_SOURCES}")
 
 target_link_libraries(test
     ${Boost_LIBRARY_DIRS}

@@ -1,36 +1,52 @@
 #include "BluetoothSerial.h"
+#include <Servo.h>
 
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
+Servo myservo; //Servoオブジェクトを作成
 BluetoothSerial SerialBT;
+
+int servoPin = 13;
 
 void setup() {
   Serial.begin(115200);
   SerialBT.begin("esp"); //Bluetooth device name
   Serial.println("The device started, now you can pair it with bluetooth!");
+//
+//  pinMode(4, OUTPUT);
+//  pinMode(5, OUTPUT);
+
+  myservo.attach(13); //13番ピンにサーボ制御線（オレンジ）を接続
+  
+//  digitalWrite(4, HIGH);
 }
 
-int cnt = 0;
+int deg = 1;
 
 void loop() {
-
-//  SerialBT.write(cnt);
-  SerialBT.println(cnt);       //bluetoothを通じてMacのプログラムに送られる
   
   //  Serial.write(cnt);
-//    Serial.println("Serial");  //ArduinoIDEのシリアルポートに出力
+  //  Serial.println("Serial");  //ArduinoIDEのシリアルポートに出力
 
-  cnt++;
   if (SerialBT.available()) {
         char buf = SerialBT.read();
-        Serial.println({buf});
-//      SerialBT.println("Hello");
+        Serial.write(buf);
+
+        myservo.write(deg);
+
+        if(buf == 'l') {
+            deg += 2;
+//          digitalWrite(4, LOW);
+        }else if(buf == 'h'){
+            deg -= 2;
+//          myservo.write(180); //180度へ回転 
+//          delay(1000);
+//          myservo.write(0); //元に戻る
+//          delay(1000);
+//          digitalWrite(4, HIGH);
+        }
   }
-  if (SerialBT.available()) {
-//    Serial.write(SerialBT.read());
-//    Serial.print(SerialBT.read());
-  }
-  delay(1000);
+  
 }

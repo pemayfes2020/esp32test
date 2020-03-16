@@ -4,8 +4,8 @@
 #include <string>
 #include <boost/asio.hpp>
 
-//#define SERIAL_PORT "/dev/cu.esp-ESP32SPP"
-#define SERIAL_PORT "/dev/rfcomm0"
+#define SERIAL_PORT "/dev/cu.esp-ESP32SPP"
+//#define SERIAL_PORT "/dev/rfcomm0"
 
 void wait10ms()
 {
@@ -32,14 +32,18 @@ auto main() -> int
 
     char buf[32];
 
+	std::cout << "ready" << std::endl;   
+
+	int times = 90;
+
     while(true) {
-        for(int i=0; i<3; ++i){
-            boost::asio::write(serial, boost::asio::buffer("h"));
+        for(int i=0; i< times; ++i){
+            boost::asio::write(serial, boost::asio::buffer("l"));
             wait10ms();
         }
 
-        for(int i=0; i<3; ++i) {
-            boost::asio::write(serial, boost::asio::buffer("l"));
+        for(int i=0; i < times; ++i) {
+            boost::asio::write(serial, boost::asio::buffer("h"));
             wait10ms();
         }
     }
