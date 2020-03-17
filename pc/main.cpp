@@ -14,39 +14,47 @@ void wait10ms()
     }
 }
 
-auto main() -> int
-{
-    boost::asio::io_service io;
+boost::asio::io_service io;
+// ポートは /dev/ttyACM0
+boost::asio::serial_port serial(io, SERIAL_PORT);
 
-    // ポートは /dev/ttyACM0
-    boost::asio::serial_port serial(io, SERIAL_PORT);
+int Command;
 
-      // 速度は 9600bps
+void setup(){
+	Command = 0;   //initialize
+	
+    // 速度は 9600bps
     serial.set_option(boost::asio::serial_port_base::baud_rate(115200));
 
     // テキトウに1秒待つ
     std::this_thread::sleep_for(std::chrono::seconds(5));
+}
 
-    // "ping" を送信
-    // boost::asio::write(serial, boost::asio::buffer("11"));
-
-    char buf[32];
+auto main() -> int
+{
+	setup();	
 
 	std::cout << "ready" << std::endl;   
+	
+	std::thread esp([&Command](){
+	while(true){
+		if(Command){
+			boost::asio::write(serial, boost::asio::buffer(std::to_string(Command)));
+		    wait10ms();
 
-	int times = 90;
+			Command = 0;
+		}
+	}});
 
-    while(true) {
-        for(int i=0; i< times; ++i){
-            boost::asio::write(serial, boost::asio::buffer("l"));
-            wait10ms();
-        }
+	std::thread sio([&Command]() {
+		while(true){
+			std::cin >> Command;
+			//std::cout << "Command = "  << Command << std::endl; 
+		}
+	});
 
-        for(int i=0; i < times; ++i) {
-            boost::asio::write(serial, boost::asio::buffer("h"));
-            wait10ms();
-        }
-    }
+	esp.join();
+	sio.join();
 
 
     return 0;
